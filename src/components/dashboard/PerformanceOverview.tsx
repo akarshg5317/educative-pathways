@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import { BarChart2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Mock data for the performance chart
 const data = [
@@ -14,6 +15,8 @@ const data = [
 ];
 
 export const PerformanceOverview = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -29,24 +32,29 @@ export const PerformanceOverview = () => {
           transition={{ delay: 0.4, duration: 0.3 }}
           className="pt-2"
         >
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height={isMobile ? 150 : 180}>
             <PieChart>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={40}
-                outerRadius={70}
+                innerRadius={isMobile ? 30 : 40}
+                outerRadius={isMobile ? 55 : 70}
                 paddingAngle={4}
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                labelLine={false}
+                label={isMobile ? undefined : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                labelLine={!isMobile}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+              <Legend 
+                layout={isMobile ? "horizontal" : "horizontal"} 
+                verticalAlign="bottom" 
+                align="center"
+                wrapperStyle={isMobile ? { fontSize: '10px' } : undefined}
+              />
             </PieChart>
           </ResponsiveContainer>
           

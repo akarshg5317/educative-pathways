@@ -3,6 +3,7 @@ import React from 'react';
 import { SideDrawerTrigger } from '@/components/layout/SideDrawer';
 import { Bell, ChevronDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   LineChart, 
   Line, 
@@ -65,6 +66,8 @@ const analyticsCards = [
 ];
 
 const Analytics = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="flex flex-col pb-20">
       <div className="container px-4 py-4">
@@ -87,13 +90,13 @@ const Analytics = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 mt-6">
+        <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-2 gap-4'} mt-6`}>
           {analyticsCards.map((card, index) => (
             <Card key={index}>
               <CardContent className="p-4">
                 <h3 className="text-sm text-muted-foreground">{card.title}</h3>
                 <div className="flex items-end justify-between mt-2">
-                  <span className="text-2xl font-bold">{card.value}</span>
+                  <span className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>{card.value}</span>
                   <div className={`flex items-center text-xs font-medium ${card.color}`}>
                     {card.trend === 'up' ? (
                       <ArrowUpRight size={14} className="mr-1" />
@@ -114,14 +117,14 @@ const Analytics = () => {
               <CardTitle className="text-xl">Attendance Trend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
+              <div className={`h-${isMobile ? '48' : '64'}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={attendanceData}
                     margin={{
                       top: 20,
-                      right: 30,
-                      left: 0,
+                      right: isMobile ? 10 : 30,
+                      left: isMobile ? -20 : 0,
                       bottom: 0,
                     }}
                   >
@@ -129,15 +132,15 @@ const Analytics = () => {
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Legend />
+                    <Legend wrapperStyle={isMobile ? { fontSize: '10px' } : undefined} />
                     <Line
                       type="monotone"
                       dataKey="attendance"
                       name="Attendance (%)"
                       stroke="#3b82f6"
                       strokeWidth={2}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
+                      dot={{ r: isMobile ? 3 : 4 }}
+                      activeDot={{ r: isMobile ? 5 : 6 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -150,22 +153,22 @@ const Analytics = () => {
               <CardTitle className="text-xl">Class Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
+              <div className={`h-${isMobile ? '48' : '64'}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={performanceData}
                     margin={{
                       top: 20,
-                      right: 30,
-                      left: 0,
+                      right: isMobile ? 10 : 30,
+                      left: isMobile ? -20 : 0,
                       bottom: 0,
                     }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : undefined} />
                     <YAxis />
                     <Tooltip />
-                    <Legend />
+                    <Legend wrapperStyle={isMobile ? { fontSize: '10px' } : undefined} />
                     <Bar dataKey="previous" name="Previous Term" fill="#94a3b8" />
                     <Bar dataKey="score" name="Current Term" fill="#3b82f6" />
                   </BarChart>

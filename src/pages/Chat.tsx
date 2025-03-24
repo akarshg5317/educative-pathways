@@ -2,7 +2,7 @@
 import React from 'react';
 import { SideDrawerTrigger } from '@/components/layout/SideDrawer';
 import { Search, Edit } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Mock data for chats
 const chatsData = [

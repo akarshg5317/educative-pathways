@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '../ui/Card';
+import { Card, CardContent } from '../ui/card';
 import { Users, FileText, Clock } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-// Mock data for classes
-const classesData = [
+// Initial mock data for classes
+const initialClassesData = [
   {
     id: 1,
     name: 'Mathematics 101',
@@ -53,6 +54,7 @@ const classesData = [
   },
 ];
 
+// Animation variants
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -70,6 +72,41 @@ const item = {
 };
 
 export const ClassList = () => {
+  const { toast } = useToast();
+  const [classesData, setClassesData] = useState(initialClassesData);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredClasses = classesData.filter(
+    classItem => 
+      classItem.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      classItem.grade.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleAddClass = (newClass: any) => {
+    const newId = classesData.length > 0 ? Math.max(...classesData.map(c => c.id)) + 1 : 1;
+    setClassesData([
+      ...classesData,
+      {
+        ...newClass,
+        id: newId
+      }
+    ]);
+  };
+
+  const handleAddAssignment = (classId: number) => {
+    setClassesData(prevClasses => 
+      prevClasses.map(classItem => 
+        classItem.id === classId 
+          ? { ...classItem, assignments: classItem.assignments + 1 } 
+          : classItem
+      )
+    );
+    toast({
+      title: "Assignment Added",
+      description: "A new assignment has been added to the class.",
+    });
+  };
+
   return (
     <motion.div
       variants={container}
@@ -77,7 +114,7 @@ export const ClassList = () => {
       animate="show"
       className="space-y-4"
     >
-      {classesData.map((classItem) => (
+      {filteredClasses.map((classItem) => (
         <motion.div
           key={classItem.id}
           variants={item}
@@ -109,8 +146,11 @@ export const ClassList = () => {
               </div>
               
               <div className="mt-4 flex justify-end gap-2">
-                <button className="px-3 py-1 rounded-md border border-border bg-secondary/50 text-xs font-medium hover:bg-secondary transition-colors">
-                  Assignments
+                <button 
+                  className="px-3 py-1 rounded-md border border-border bg-secondary/50 text-xs font-medium hover:bg-secondary transition-colors"
+                  onClick={() => handleAddAssignment(classItem.id)}
+                >
+                  Add Assignment
                 </button>
                 <button className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors">
                   View Class

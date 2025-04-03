@@ -1,13 +1,21 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SideDrawerTrigger } from '@/components/layout/SideDrawer';
 import { Bell, Search, Filter, Plus } from 'lucide-react';
 import { ClassList } from '@/components/classes/ClassList';
+import { AddClassModal } from '@/components/classes/AddClassModal';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Classes = () => {
   const isMobile = useIsMobile();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
+  const [classes, setClasses] = useState<any[]>([]);
   
+  const handleAddClass = (newClass: any) => {
+    setClasses([...classes, newClass]);
+  };
+
   return (
     <div className="flex flex-col pb-20">
       <div className="container px-4 py-4">
@@ -37,6 +45,8 @@ const Classes = () => {
                 <input
                   placeholder="Search classes..."
                   className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
@@ -47,7 +57,10 @@ const Classes = () => {
                 <span>Filter</span>
               </button>
               
-              <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+              <button 
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                onClick={() => setIsAddClassModalOpen(true)}
+              >
                 <Plus size={16} />
                 <span>Add Class</span>
               </button>
@@ -61,6 +74,8 @@ const Classes = () => {
                 <input
                   placeholder="Search classes..."
                   className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
@@ -71,7 +86,10 @@ const Classes = () => {
                 <span>Filter</span>
               </button>
               
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+              <button 
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                onClick={() => setIsAddClassModalOpen(true)}
+              >
                 <Plus size={16} />
                 <span>Add Class</span>
               </button>
@@ -83,6 +101,12 @@ const Classes = () => {
           <ClassList />
         </div>
       </div>
+
+      <AddClassModal 
+        isOpen={isAddClassModalOpen}
+        onClose={() => setIsAddClassModalOpen(false)}
+        onAddClass={handleAddClass}
+      />
     </div>
   );
 };

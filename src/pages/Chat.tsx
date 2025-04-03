@@ -1,8 +1,9 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SideDrawerTrigger } from '@/components/layout/SideDrawer';
 import { Search, Edit } from 'lucide-react';
-import { Card, CardContent } from '../components/ui/Card';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Mock data for chats
 const chatsData = [
@@ -59,6 +60,12 @@ const chatsData = [
 ];
 
 const Chat = () => {
+  const navigate = useNavigate();
+
+  const handleChatClick = (chatId: number) => {
+    navigate(`/chat/${chatId}`);
+  };
+
   return (
     <div className="flex flex-col pb-20">
       <div className="container px-4 py-4">
@@ -85,7 +92,11 @@ const Chat = () => {
         
         <div className="mt-6 space-y-2">
           {chatsData.map((chat) => (
-            <Card key={chat.id} className="cursor-pointer hover:shadow-md transition-all">
+            <Card 
+              key={chat.id} 
+              className="cursor-pointer hover:shadow-md transition-all"
+              onClick={() => handleChatClick(chat.id)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className={`flex-shrink-0 w-12 h-12 rounded-full ${chat.avatarColor} flex items-center justify-center font-medium`}>

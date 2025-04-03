@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import Dashboard from "./pages/Dashboard";
 import Classes from "./pages/Classes";
 import Chat from "./pages/Chat";
+import ChatDetail from "./pages/ChatDetail";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/classes" element={<Classes />} />
                 <Route path="/chat" element={<Chat />} />
+                <Route path="/chat/:chatId" element={<ChatDetail />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<NotFound />} />

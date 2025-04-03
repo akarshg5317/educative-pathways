@@ -1,59 +1,9 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Users, FileText, Clock, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ClassItem } from '@/pages/Classes';
-
-// Initial mock data for classes
-const initialClassesData = [
-  {
-    id: 1,
-    name: 'Mathematics 101',
-    grade: 'Grade 10-A',
-    students: 28,
-    assignments: 4,
-    nextClass: 'Today, 08:30 AM',
-    color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/40',
-  },
-  {
-    id: 2,
-    name: 'Physics Advanced',
-    grade: 'Grade 11-B',
-    students: 24,
-    assignments: 2,
-    nextClass: 'Today, 10:00 AM',
-    color: 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800/40',
-  },
-  {
-    id: 3,
-    name: 'Chemistry Lab',
-    grade: 'Grade 11-A',
-    students: 22,
-    assignments: 3,
-    nextClass: 'Today, 12:30 PM',
-    color: 'bg-purple-100 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800/40',
-  },
-  {
-    id: 4,
-    name: 'Biology 101',
-    grade: 'Grade 10-B',
-    students: 26,
-    assignments: 1,
-    nextClass: 'Tomorrow, 09:00 AM',
-    color: 'bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800/40',
-  },
-  {
-    id: 5,
-    name: 'Computer Science',
-    grade: 'Grade 12-A',
-    students: 20,
-    assignments: 5,
-    nextClass: 'Tomorrow, 11:00 AM',
-    color: 'bg-cyan-100 dark:bg-cyan-900/30 border-cyan-200 dark:border-cyan-800/40',
-  },
-];
 
 // Animation variants
 const container = {
@@ -73,63 +23,30 @@ const item = {
 };
 
 interface ClassListProps {
-  additionalClasses?: ClassItem[];
+  classes: ClassItem[];
   searchQuery?: string;
+  onDeleteClass: (id: number) => void;
 }
 
 export const ClassList: React.FC<ClassListProps> = ({ 
-  additionalClasses = [], 
-  searchQuery = '' 
+  classes = [], 
+  searchQuery = '',
+  onDeleteClass
 }) => {
   const { toast } = useToast();
-  const [allClasses, setAllClasses] = useState<ClassItem[]>([]);
   
-  // Initialize with both initial classes and additional classes
-  useEffect(() => {
-    // Create a map to store unique classes by ID
-    const uniqueClassesMap = new Map<number, ClassItem>();
-    
-    // Add initial classes to map
-    initialClassesData.forEach(classItem => {
-      uniqueClassesMap.set(classItem.id, classItem);
-    });
-    
-    // Add additional classes to map, overwriting any with the same ID
-    additionalClasses.forEach(classItem => {
-      uniqueClassesMap.set(classItem.id, classItem);
-    });
-    
-    // Convert map values back to array
-    setAllClasses(Array.from(uniqueClassesMap.values()));
-  }, [additionalClasses]);
-  
-  const filteredClasses = allClasses.filter(
+  const filteredClasses = classes.filter(
     classItem => 
       classItem.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
       classItem.grade.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleAddAssignment = (classId: number) => {
-    setAllClasses(prevClasses => 
-      prevClasses.map(classItem => 
-        classItem.id === classId 
-          ? { ...classItem, assignments: classItem.assignments + 1 } 
-          : classItem
-      )
-    );
-    
+    // This will be handled by the parent component through state management
+    // but we'll keep the toast for user feedback
     toast({
       title: "Assignment Added",
       description: "A new assignment has been added to the class.",
-    });
-  };
-
-  const handleDeleteClass = (classId: number) => {
-    setAllClasses(prevClasses => prevClasses.filter(c => c.id !== classId));
-    
-    toast({
-      title: "Class Removed",
-      description: "The class has been removed successfully.",
     });
   };
 
@@ -141,8 +58,12 @@ export const ClassList: React.FC<ClassListProps> = ({
       className="space-y-4"
     >
       {filteredClasses.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">No classes found. Add a new class to get started.</p>
+        <div className="text-center py-16 border border-dashed rounded-lg">
+          <h3 className="text-xl font-medium text-muted-foreground mb-2">No Classes Yet</h3>
+          <p className="text-muted-foreground mb-4">Add your first class to get started</p>
+          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-secondary/30 rounded-full">
+            <Users size={32} className="text-muted-foreground" />
+          </div>
         </div>
       ) : (
         filteredClasses.map((classItem) => (
@@ -188,7 +109,7 @@ export const ClassList: React.FC<ClassListProps> = ({
                   </button>
                   <button 
                     className="px-3 py-1 rounded-md border border-border bg-destructive/10 text-xs font-medium text-destructive hover:bg-destructive/20 transition-colors"
-                    onClick={() => handleDeleteClass(classItem.id)}
+                    onClick={() => onDeleteClass(classItem.id)}
                   >
                     <Trash2 size={12} className="inline mr-1" />
                     Delete

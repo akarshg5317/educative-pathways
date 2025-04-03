@@ -24,6 +24,19 @@ const Classes = () => {
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [classes, setClasses] = useState<ClassItem[]>([]);
   
+  // Load classes from localStorage on component mount
+  useEffect(() => {
+    const savedClasses = localStorage.getItem('classData');
+    if (savedClasses) {
+      setClasses(JSON.parse(savedClasses));
+    }
+  }, []);
+
+  // Save classes to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('classData', JSON.stringify(classes));
+  }, [classes]);
+  
   const handleAddClass = (newClass: Omit<ClassItem, 'id'>) => {
     const newId = classes.length > 0 ? Math.max(...classes.map(c => c.id)) + 1 : 1;
     const classWithId = {
@@ -120,7 +133,13 @@ const Classes = () => {
         )}
         
         <div className="mt-6">
-          <ClassList searchQuery={searchQuery} additionalClasses={classes} />
+          <ClassList classes={classes} searchQuery={searchQuery} onDeleteClass={(id) => {
+            setClasses(prevClasses => prevClasses.filter(c => c.id !== id));
+            toast({
+              title: "Success",
+              description: "Class has been removed successfully",
+            });
+          }} />
         </div>
       </div>
 

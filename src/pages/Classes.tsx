@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SideDrawerTrigger } from '@/components/layout/SideDrawer';
 import { Bell, Search, Filter, Plus } from 'lucide-react';
 import { ClassList } from '@/components/classes/ClassList';
 import { AddClassModal } from '@/components/classes/AddClassModal';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
 
 export interface ClassItem {
   id: number;
@@ -18,6 +19,7 @@ export interface ClassItem {
 
 const Classes = () => {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [classes, setClasses] = useState<ClassItem[]>([]);
@@ -28,7 +30,12 @@ const Classes = () => {
       ...newClass,
       id: newId
     };
-    setClasses([...classes, classWithId]);
+    setClasses(prevClasses => [...prevClasses, classWithId]);
+    
+    toast({
+      title: "Success",
+      description: `Class "${newClass.name}" has been created`,
+    });
   };
 
   return (
@@ -113,7 +120,7 @@ const Classes = () => {
         )}
         
         <div className="mt-6">
-          <ClassList additionalClasses={classes} />
+          <ClassList searchQuery={searchQuery} additionalClasses={classes} />
         </div>
       </div>
 

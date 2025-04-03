@@ -1,147 +1,118 @@
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { BarChart2, PieChart as PieChartIcon, ArrowRight } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { Menu } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '../ui/button';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart';
 
-// Mock data for the performance chart
-const pieData = [
-  { name: 'Excellent', value: 12, color: '#3b82f6' },
-  { name: 'Good', value: 8, color: '#10b981' },
-  { name: 'Average', value: 5, color: '#f59e0b' },
-  { name: 'Needs Help', value: 3, color: '#ef4444' },
+// Performance data for the chart
+const performanceData = [
+  { subject: 'Math', score: 85, average: 72 },
+  { subject: 'Science', score: 78, average: 70 },
+  { subject: 'English', score: 92, average: 75 },
+  { subject: 'History', score: 88, average: 78 },
+  { subject: 'Art', score: 95, average: 82 },
 ];
 
-const barData = [
-  { name: 'Week 1', score: 65 },
-  { name: 'Week 2', score: 72 },
-  { name: 'Week 3', score: 78 },
-  { name: 'Week 4', score: 75 },
-  { name: 'Week 5', score: 82 },
+interface ChartTypeOption {
+  value: 'bar' | 'line';
+  label: string;
+}
+
+const chartTypeOptions: ChartTypeOption[] = [
+  { value: 'bar', label: 'Bar Chart' },
+  { value: 'line', label: 'Line Chart' },
 ];
 
 export const PerformanceOverview = () => {
   const isMobile = useIsMobile();
-  const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
+  const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   
+  const renderChart = () => {
+    if (chartType === 'bar') {
+      return (
+        <ResponsiveContainer width="100%" height={isMobile ? 200 : 300}>
+          <BarChart
+            data={performanceData}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="subject" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip
+              contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', borderRadius: '6px', border: 'none' }}
+              itemStyle={{ color: '#ffffff' }}
+              formatter={(value) => [`${value}%`]}
+            />
+            <Bar dataKey="score" fill="#8884d8" radius={[4, 4, 0, 0]} name="Your Score" />
+            <Bar dataKey="average" fill="#82ca9d" radius={[4, 4, 0, 0]} name="Class Average" />
+          </BarChart>
+        </ResponsiveContainer>
+      );
+    } else {
+      return (
+        <ResponsiveContainer width="100%" height={isMobile ? 200 : 300}>
+          <LineChart
+            data={performanceData}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="subject" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip
+              contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', borderRadius: '6px', border: 'none' }}
+              itemStyle={{ color: '#ffffff' }}
+              formatter={(value) => [`${value}%`]}
+            />
+            <Line type="monotone" dataKey="score" stroke="#8884d8" strokeWidth={2} name="Your Score" />
+            <Line type="monotone" dataKey="average" stroke="#82ca9d" strokeWidth={2} name="Class Average" />
+          </LineChart>
+        </ResponsiveContainer>
+      );
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl flex items-center gap-2">
-            <BarChart2 size={18} className="text-primary" />
-            Class Performance
-          </CardTitle>
-          <div className="flex items-center gap-1">
-            <Button 
-              variant={chartType === 'pie' ? 'default' : 'outline'} 
-              size="sm" 
-              className="h-8 px-2"
-              onClick={() => setChartType('pie')}
-            >
-              <PieChartIcon size={16} />
-            </Button>
-            <Button 
-              variant={chartType === 'bar' ? 'default' : 'outline'} 
-              size="sm" 
-              className="h-8 px-2"
-              onClick={() => setChartType('bar')}
-            >
-              <BarChart2 size={16} />
+    <Card className="h-full">
+      <CardContent className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Performance Overview</h2>
+          <div className="flex items-center gap-2">
+            <div className="flex bg-secondary rounded-md">
+              {chartTypeOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  variant={chartType === option.value ? "default" : "ghost"}
+                  size="sm"
+                  className={`text-xs py-1 h-8 ${
+                    chartType === option.value ? 'bg-primary text-primary-foreground' : ''
+                  }`}
+                  onClick={() => setChartType(option.value)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+            
+            <Button variant="outline" size="icon" className="h-8 w-8">
+              <Menu className="h-4 w-4" />
             </Button>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <motion.div
-          key={chartType}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="pt-2"
-        >
-          {chartType === 'pie' ? (
-            <ResponsiveContainer width="100%" height={isMobile ? 180 : 220}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={isMobile ? 30 : 40}
-                  outerRadius={isMobile ? 55 : 70}
-                  paddingAngle={4}
-                  dataKey="value"
-                  label={isMobile ? undefined : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  labelLine={!isMobile}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-background border border-border rounded-md p-2 shadow-md">
-                          <p className="font-medium">{payload[0].name}</p>
-                          <p className="text-sm">{`Students: ${payload[0].value}`}</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend 
-                  layout={isMobile ? "horizontal" : "horizontal"} 
-                  verticalAlign="bottom" 
-                  align="center"
-                  wrapperStyle={isMobile ? { fontSize: '10px' } : undefined}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <ResponsiveContainer width="100%" height={isMobile ? 180 : 220}>
-              <BarChart
-                data={barData}
-                margin={{
-                  top: 20,
-                  right: 10,
-                  left: 0,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="name" tick={{ fontSize: isMobile ? 10 : 12 }} />
-                <YAxis tick={{ fontSize: isMobile ? 10 : 12 }} />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-background border border-border rounded-md p-2 shadow-md">
-                          <p className="font-medium">{label}</p>
-                          <p className="text-sm">{`Score: ${payload[0].value}`}</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Bar dataKey="score" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-          
-          <div className="mt-4 text-center flex justify-center">
-            <button className="flex items-center gap-1 text-center text-sm text-primary py-2 hover:underline">
-              View Detailed Analytics
-              <ArrowRight size={14} />
-            </button>
+        
+        {renderChart()}
+        
+        <div className="flex justify-center mt-4 gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-[#8884d8]"></div>
+            <span className="text-sm">Your Score</span>
           </div>
-        </motion.div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-[#82ca9d]"></div>
+            <span className="text-sm">Class Average</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

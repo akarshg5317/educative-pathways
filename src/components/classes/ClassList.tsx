@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '../ui/card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Users, FileText, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ClassItem } from '@/pages/Classes';
 
 // Initial mock data for classes
 const initialClassesData = [
@@ -71,36 +72,41 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-export const ClassList = () => {
-  const { toast } = useToast();
-  const [classesData, setClassesData] = useState(initialClassesData);
-  const [searchQuery, setSearchQuery] = useState('');
+interface ClassListProps {
+  additionalClasses?: ClassItem[];
+}
 
-  const filteredClasses = classesData.filter(
+export const ClassList: React.FC<ClassListProps> = ({ additionalClasses = [] }) => {
+  const { toast } = useToast();
+  const [baseClassesData, setBaseClassesData] = useState(initialClassesData);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Combine base classes with additional classes from props
+  const allClasses = [...baseClassesData, ...additionalClasses];
+  
+  // Remove duplicates (in case we add a class that has the same ID as an existing one)
+  const uniqueClasses = Array.from(
+    new Map(allClasses.map(item => [item.id, item])).values()
+  );
+  
+  const filteredClasses = uniqueClasses.filter(
     classItem => 
       classItem.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
       classItem.grade.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddClass = (newClass: any) => {
-    const newId = classesData.length > 0 ? Math.max(...classesData.map(c => c.id)) + 1 : 1;
-    setClassesData([
-      ...classesData,
-      {
-        ...newClass,
-        id: newId
-      }
-    ]);
-  };
-
   const handleAddAssignment = (classId: number) => {
-    setClassesData(prevClasses => 
-      prevClasses.map(classItem => 
-        classItem.id === classId 
-          ? { ...classItem, assignments: classItem.assignments + 1 } 
-          : classItem
-      )
+    const updatedClasses = allClasses.map(classItem => 
+      classItem.id === classId 
+        ? { ...classItem, assignments: classItem.assignments + 1 } 
+        : classItem
     );
+    
+    // Update base classes
+    setBaseClassesData(
+      updatedClasses.filter(c => initialClassesData.some(ic => ic.id === c.id))
+    );
+    
     toast({
       title: "Assignment Added",
       description: "A new assignment has been added to the class.",

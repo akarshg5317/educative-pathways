@@ -6,14 +6,29 @@ import { ClassList } from '@/components/classes/ClassList';
 import { AddClassModal } from '@/components/classes/AddClassModal';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+export interface ClassItem {
+  id: number;
+  name: string;
+  grade: string;
+  students: number;
+  assignments: number;
+  nextClass: string;
+  color: string;
+}
+
 const Classes = () => {
   const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
-  const [classes, setClasses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<ClassItem[]>([]);
   
-  const handleAddClass = (newClass: any) => {
-    setClasses([...classes, newClass]);
+  const handleAddClass = (newClass: Omit<ClassItem, 'id'>) => {
+    const newId = classes.length > 0 ? Math.max(...classes.map(c => c.id)) + 1 : 1;
+    const classWithId = {
+      ...newClass,
+      id: newId
+    };
+    setClasses([...classes, classWithId]);
   };
 
   return (
@@ -98,7 +113,7 @@ const Classes = () => {
         )}
         
         <div className="mt-6">
-          <ClassList />
+          <ClassList additionalClasses={classes} />
         </div>
       </div>
 

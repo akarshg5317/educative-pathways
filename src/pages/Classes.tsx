@@ -7,6 +7,13 @@ import { AddClassModal } from '@/components/classes/AddClassModal';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 
+export interface Assignment {
+  id: number;
+  title: string;
+  description: string;
+  dueDate: string;
+}
+
 export interface ClassItem {
   id: number;
   name: string;
@@ -15,6 +22,7 @@ export interface ClassItem {
   assignments: number;
   nextClass: string;
   color: string;
+  assignmentList?: Assignment[];
 }
 
 const Classes = () => {
@@ -41,13 +49,41 @@ const Classes = () => {
     const newId = classes.length > 0 ? Math.max(...classes.map(c => c.id)) + 1 : 1;
     const classWithId = {
       ...newClass,
-      id: newId
+      id: newId,
+      assignmentList: []
     };
     setClasses(prevClasses => [...prevClasses, classWithId]);
-    
+  };
+
+  const handleAddAssignment = (classId: number, assignment: {
+    title: string;
+    description: string;
+    dueDate: string;
+  }) => {
+    setClasses(prevClasses => prevClasses.map(classItem => {
+      if (classItem.id === classId) {
+        const assignmentList = classItem.assignmentList || [];
+        const newAssignmentId = assignmentList.length > 0 
+          ? Math.max(...assignmentList.map(a => a.id)) + 1 
+          : 1;
+        
+        const newAssignment = {
+          id: newAssignmentId,
+          ...assignment
+        };
+
+        return {
+          ...classItem,
+          assignments: classItem.assignments + 1,
+          assignmentList: [...assignmentList, newAssignment]
+        };
+      }
+      return classItem;
+    }));
+
     toast({
       title: "Success",
-      description: `Class "${newClass.name}" has been created`,
+      description: `Assignment has been added successfully`,
     });
   };
 
@@ -133,13 +169,18 @@ const Classes = () => {
         )}
         
         <div className="mt-6">
-          <ClassList classes={classes} searchQuery={searchQuery} onDeleteClass={(id) => {
-            setClasses(prevClasses => prevClasses.filter(c => c.id !== id));
-            toast({
-              title: "Success",
-              description: "Class has been removed successfully",
-            });
-          }} />
+          <ClassList 
+            classes={classes} 
+            searchQuery={searchQuery} 
+            onDeleteClass={(id) => {
+              setClasses(prevClasses => prevClasses.filter(c => c.id !== id));
+              toast({
+                title: "Success",
+                description: "Class has been removed successfully",
+              });
+            }} 
+            onAddAssignment={handleAddAssignment}
+          />
         </div>
       </div>
 

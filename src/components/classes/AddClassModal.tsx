@@ -10,6 +10,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from '@/hooks/use-toast';
 
 interface AddClassModalProps {
@@ -34,12 +41,17 @@ const colorOptions = [
   'bg-pink-100 dark:bg-pink-900/30 border-pink-200 dark:border-pink-800/40',
 ];
 
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const hours = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+
 export const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose, onAddClass }) => {
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [grade, setGrade] = useState('');
   const [students, setStudents] = useState('');
   const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
+  const [day, setDay] = useState('Monday');
+  const [time, setTime] = useState('09:00');
 
   const handleSubmit = () => {
     if (!name.trim() || !grade.trim() || !students.trim()) {
@@ -56,7 +68,7 @@ export const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose, o
       grade,
       students: parseInt(students),
       assignments: 0,
-      nextClass: 'Tomorrow, 09:00 AM',
+      nextClass: `${day}, ${time}`,
       color: selectedColor,
     };
 
@@ -74,6 +86,8 @@ export const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose, o
     setGrade('');
     setStudents('');
     setSelectedColor(colorOptions[0]);
+    setDay('Monday');
+    setTime('09:00');
   };
 
   return (
@@ -119,6 +133,35 @@ export const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose, o
               className="col-span-3"
               placeholder="25"
             />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Schedule</Label>
+            <div className="col-span-3 grid grid-cols-2 gap-2">
+              <Select value={day} onValueChange={setDay}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Day" />
+                </SelectTrigger>
+                <SelectContent>
+                  {days.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={time} onValueChange={setTime}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hours.map((h) => (
+                    <SelectItem key={h} value={h}>
+                      {h}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Color</Label>

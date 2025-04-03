@@ -1,9 +1,11 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Users, FileText, Clock, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ClassItem } from '@/pages/Classes';
+import { AddAssignmentModal } from './AddAssignmentModal';
 
 // Animation variants
 const container = {
@@ -26,14 +28,21 @@ interface ClassListProps {
   classes: ClassItem[];
   searchQuery?: string;
   onDeleteClass: (id: number) => void;
+  onAddAssignment: (classId: number, assignment: {
+    title: string;
+    description: string;
+    dueDate: string;
+  }) => void;
 }
 
 export const ClassList: React.FC<ClassListProps> = ({ 
   classes = [], 
   searchQuery = '',
-  onDeleteClass
+  onDeleteClass,
+  onAddAssignment
 }) => {
   const { toast } = useToast();
+  const [activeClassForAssignment, setActiveClassForAssignment] = useState<ClassItem | null>(null);
   
   const filteredClasses = classes.filter(
     classItem => 
@@ -41,13 +50,8 @@ export const ClassList: React.FC<ClassListProps> = ({
       classItem.grade.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddAssignment = (classId: number) => {
-    // This will be handled by the parent component through state management
-    // but we'll keep the toast for user feedback
-    toast({
-      title: "Assignment Added",
-      description: "A new assignment has been added to the class.",
-    });
+  const handleAddAssignment = (classItem: ClassItem) => {
+    setActiveClassForAssignment(classItem);
   };
 
   return (
@@ -100,7 +104,7 @@ export const ClassList: React.FC<ClassListProps> = ({
                 <div className="mt-4 flex justify-end gap-2">
                   <button 
                     className="px-3 py-1 rounded-md border border-border bg-secondary/50 text-xs font-medium hover:bg-secondary transition-colors"
-                    onClick={() => handleAddAssignment(classItem.id)}
+                    onClick={() => handleAddAssignment(classItem)}
                   >
                     Add Assignment
                   </button>
@@ -119,6 +123,16 @@ export const ClassList: React.FC<ClassListProps> = ({
             </Card>
           </motion.div>
         ))
+      )}
+
+      {activeClassForAssignment && (
+        <AddAssignmentModal
+          isOpen={!!activeClassForAssignment}
+          onClose={() => setActiveClassForAssignment(null)}
+          classId={activeClassForAssignment.id}
+          className={activeClassForAssignment.name}
+          onAddAssignment={onAddAssignment}
+        />
       )}
     </motion.div>
   );
